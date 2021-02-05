@@ -9,6 +9,7 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageView
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 class CropView @JvmOverloads constructor(
     context: Context,
@@ -19,7 +20,7 @@ class CropView @JvmOverloads constructor(
 
 
     private var paint: Paint? = null;
-    private var points: ArrayList<Point>? = null
+    private var points: ArrayList<Point> = ArrayList()
     private var bitmapMain: Bitmap? = null;
     private var leftX: Int = 0
     private var rightX: Int = 0
@@ -50,9 +51,11 @@ class CropView @JvmOverloads constructor(
 
     }
 
+    private val path = Path()
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        var path = Path()
+        path.reset()
         var first = true
         (0 until points?.size!! step 2).forEach {
             var p = points!![it]
@@ -126,41 +129,20 @@ class CropView @JvmOverloads constructor(
         invalidate()
     }
 
-    fun getImage(): Bitmap {
+    fun getCropImage(): Bitmap {
+        val resultingImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
-        var newH = rightX - leftX
-        var newW = downY - upY
+        val canvas = Canvas(resultingImage)
 
-        var resultBitmap = Bitmap.createBitmap(newH, newW, Bitmap.Config.ARGB_8888)
+        val paint = Paint()
+        paint.isAntiAlias = true
 
-        var canvas = Canvas(resultBitmap)
-        var p = Paint().apply {
-            isAntiAlias = true
-        }
-        var path = Path()
-        (0 until points?.size!! - 1).forEach {
-            path.quadTo(
-                points!![it].x.toFloat(),
-                points!![it].y.toFloat(),
-                points!![it + 1].x.toFloat(),
-                points!![it + 1].y.toFloat()
-            )
-        }
+        canvas.drawPath(path, paint)
 
-        path.quadTo(
-            points!![points?.size!! - 1].x.toFloat(),
-            points!![points?.size!! - 1].y.toFloat(),
-            points!![0].x.toFloat(),
-            points!![0].y.toFloat()
-        )
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(bitmapMain!!, 0f, 0f, paint)
 
-        canvas.drawPath(path, p)
-        p.apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
-        }
-        canvas.drawBitmap(bitmapMain!!, 0f, 0f, p)
-        return resultBitmap
-
+        return resultingImage
     }
 
 

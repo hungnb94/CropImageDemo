@@ -2,7 +2,6 @@ package com.example.democrop
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         var btn = findViewById<Button>(R.id.take_image)
         var btnCrop = findViewById<Button>(R.id.crop_image)
         drawing = findViewById(R.id.view_drawing)
-      var  r : ImageView = findViewById(R.id.view)
+        val resultImage : ImageView = findViewById(R.id.view)
 
 
 
@@ -76,12 +75,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         }
 
         btnCrop.setOnClickListener {
-            var bm = drawing.getImage()
+            val bm = drawing.getCropImage()
             Log.e("AMBE1203","bitmap: "+ bm.height)
-            drawing.visibility = View.GONE
-            r.visibility = View.VISIBLE
-            val d = BitmapDrawable(resources,bm)
-            r.setImageDrawable(d)
+//            drawing.visibility = View.GONE
+//            resultImage.visibility = View.VISIBLE
+//            val d = BitmapDrawable(resources,bm)
+//            resultImage.setImageDrawable(d)
+            drawing.setImageBitmap(bm)
    //         showDialog("Image crop")
         }
 
@@ -98,8 +98,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         val back = view.findViewById<Button>(R.id.btn_back)
         val img = view.findViewById<ImageView>(R.id.img_result)
-        Log.e("AMBE1203", drawing.getImage().toString())
-        img.setImageBitmap(drawing.getImage())
+        img.setImageBitmap(drawing.getCropImage())
         back.setOnClickListener {
             dialog.dismiss()
         }
@@ -164,8 +163,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             drawing.clear()
-            var bitmap: Bitmap? = null
-            bitmap = decodeSampledBitmapFromPath(currentPhotoPath, true)
+            val bitmap: Bitmap? = decodeSampledBitmapFromPath(currentPhotoPath, true)
             drawing.setBitmap(bitmap!!)
             drawing.setImageBitmap(bitmap)
 
